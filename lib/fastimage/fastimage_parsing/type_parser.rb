@@ -35,7 +35,7 @@ module FastImageParsing
             :avif
           when "ftypavis"
             :avif
-          when "ftypheic"
+          when "ftypheic", "ftypheix", "ftypheim", "ftypheis", "ftyphevc", "ftyphevm", "ftyphevs"
             :heic
           when "ftypmif1"
             :heif

@@ -54,6 +54,7 @@ GoodFixtures = {
   "heic/heic-single.heic"=>[:heif,[1440,960]],
   "heic/heic-collection.heic"=>[:heif,[1440,960]],
   "heic/inverted.heic"=>[:heic,[3024, 4032]],
+  "heic/heix-10bit-422.heic"=>[:heic,[120, 80]],
   "heic/test-meta-after-mdat.heic"=>[:heic,[4000, 3000]],
   "test6.svg" => [:svg, [450, 450]],
   "avif/hato.avif" => [:avif, [3082, 2048]],
@@ -77,6 +78,7 @@ BadFixtures = [
 # man.ico courtesy of http://www.iconseeker.com/search-icon/artists-valley-sample/business-man-blue.html
 # test_rgb.ct courtesy of http://fileformats.archiveteam.org/wiki/Scitex_CT
 # test.cur courtesy of http://mimidestino.deviantart.com/art/Clash-Of-Clans-Dragon-Cursor-s-Punteros-489070897
+# heic/heix-10bit-422.heic is a generated gradient, encoded with libheif as 10-bit 4:2:2 and branded heix like camera output
 
 TestUrl = "http://example.nowhere/"
 
@@ -110,6 +112,14 @@ class FastImageTest < Test::Unit::TestCase
     GoodFixtures.each do |fn, info|
       assert_equal info[0], FastImage.type(TestUrl + fn), "type of image #{fn} must be #{info[0]}"
       assert_equal info[0], FastImage.type(TestUrl + fn, :raise_on_failure=>true), "type of image #{fn} must be #{info[0]}"
+    end
+  end
+
+  def test_should_report_heic_type_for_all_hevc_brands
+    # HEVC image and sequence brands from ISO/IEC 23008-12 Annex B, eg. heix for 10-bit images from cameras
+    %w(heic heix heim heis hevc hevm hevs).each do |brand|
+      ftyp = [24].pack("N") + "ftyp" + brand + [0].pack("N") + "mif1" + brand
+      assert_equal :heic, FastImage.type(StringIO.new(ftyp)), "type of brand #{brand} must be heic"
     end
   end
 
